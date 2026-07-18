@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shell &amp; Tide • Cancer Moon Clock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&amp;family=Playfair+Display:wght@700&amp;display=swap');
+        
+        :root {
+            --accent: #bae6fd;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .heading-serif {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .moon-glow {
+            box-shadow: 0 0 25px rgba(224, 242, 254, 0.7),
+                        0 0 50px rgba(186, 230, 253, 0.4),
+                        inset 0 0 30px rgba(255,255,255,0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .phase-marker {
+            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .phase-marker:hover {
+            transform: scale(1.15);
+            filter: brightness(1.2);
+        }
+
+        .phase-marker.active {
+            box-shadow: 0 0 0 4px rgba(186, 230, 253, 0.6);
+            transform: scale(1.1);
+        }
+        
+        .phase-marker.active.today-badge {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(186, 230, 253, 0.6), 0 0 20px rgba(134, 239, 172, 0.5); }
+            50% { box-shadow: 0 0 0 8px rgba(186, 230, 253, 0.8), 0 0 30px rgba(134, 239, 172, 0.7); }
+        }
+
+        .lunar-hand {
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: center;
+        }
+
+        .section-header {
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: #bae6fd;
+        }
+
+        .mystical-bg {
+            background: radial-gradient(circle at 50% 20%, #1e3a5f 0%, #0f172a 70%);
+        }
+
+        .cancer-gradient {
+            background: linear-gradient(135deg, #0f172a, #1e2937);
+        }
+
+        .moon-surface {
+            background: linear-gradient(145deg, #e0f2fe, #f8fafc, #e0f2fe);
+            box-shadow: 
+                inset 20px 20px 40px rgba(148, 163, 184, 0.3),
+                inset -15px -15px 30px rgba(255,255,255,0.9),
+                0 0 40px rgba(186, 230, 253, 0.5);
+        }
+
+        .wave-bg {
+            background-image: 
+                linear-gradient(rgba(186, 230, 253, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(186, 230, 253, 0.06) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .trait-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .trait-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        .phase-detail {
+            animation: fadeInUp 0.4s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cosmic-text {
+            background: linear-gradient(90deg, #e0f2fe, #bae6fd, #e0f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 100%;
+            animation: shimmer 4s linear infinite;
+        }
+
+        .subtle-wave {
+            animation: gentleWave 8s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <!-- NAV -->
+    <nav class="border-b border-white/10 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-400 to-cyan-300 flex items-center justify-center text-slate-950 shadow-inner">
+                    <i class="fa-solid fa-crab text-3xl"></i>
+                </div>
+                <div>
+                    <span class="font-semibold text-2xl tracking-tighter">Shell &amp; Tide</span>
+                    <span class="text-xs text-sky-400 font-mono tracking-[3px] block -mt-1">CANCER MOON CLOCK</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-x-2 text-sm">
+                <div class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 flex items-center gap-x-2 text-xs">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span class="font-mono text-emerald-300">LIVE • JUL 18 2026</span>
+                </div>
+                <button onclick="showBirthModal()" 
+                        class="px-4 py-2 text-xs font-medium rounded-2xl border border-white/20 hover:bg-white/5 transition-colors flex items-center gap-x-2">
+                    <i class="fa-solid fa-magic text-sky-400"></i>
+                    <span class="hidden sm:inline">My Birth Phase</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-6 pt-8 pb-16">
+        
+        <!-- HERO -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center gap-x-2 px-4 py-1 rounded-full bg-white/5 border border-white/10 mb-4">
+                <i class="fa-solid fa-moon text-sky-400"></i>
+                <span class="text-xs font-medium tracking-widest">RULED BY THE MOON • WATER SIGN</span>
+            </div>
+            <h1 class="text-6xl md:text-7xl heading-serif tracking-tighter mb-3">The Cancer<br>Moon Clock</h1>
+            <p class="max-w-md mx-auto text-lg text-slate-400">Ride the emotional tides. Track the lunar phases that shape your inner ocean.</p>
+        </div>
+
+        <!-- THE CLOCK -->
+        <div class="max-w-[380px] mx-auto mb-8">
+            <div class="relative w-[340px] h-[340px] mx-auto">
+                
+                <!-- Outer cosmic ring -->
+                <div class="absolute inset-0 rounded-full border-[12px] border-white/10 mystical-bg"></div>
+                
+                <!-- Subtle wave pattern ring -->
+                <div class="absolute inset-[14px] rounded-full border border-white/10 wave-bg"></div>
+                
+                <!-- Phase markers container -->
+                <div id="phase-markers" class="absolute inset-0"></div>
+                
+                <!-- Center Moon Visual -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+                    <div id="moon-visual" 
+                         class="w-[148px] h-[148px] rounded-full flex flex-col items-center justify-center cursor-pointer shadow-2xl moon-glow"
+                         onclick="resetToCurrentPhase()">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                
+                <!-- Lunar Hand / Indicator -->
+                <div id="lunar-hand-container" class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                    <div id="lunar-hand" 
+                         class="lunar-hand w-1 h-[118px] bg-gradient-to-t from-transparent via-sky-300 to-sky-200 rounded-full shadow-[0_0_12px_rgb(186,230,253)]"
+                         style="transform: rotate(0deg); margin-top: -59px;">
+                    </div>
+                </div>
+                
+                <!-- Center label -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 text-center pointer-events-none">
+                    <div class="text-[9px] font-mono tracking-[2px] text-sky-300/70">LUNAR</div>
+                    <div id="lunar-day" class="text-xl font-semibold text-white tabular-nums"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CURRENT PHASE INFO -->
+        <div class="max-w-2xl mx-auto mb-10">
+            <div class="flex items-center justify-between mb-3 px-1">
+                <div>
+                    <span class="section-header">CURRENT LUNAR INFLUENCE</span>
+                    <div id="current-phase-name" class="text-3xl font-semibold tracking-tight"></div>
+                </div>
+                <div class="text-right">
+                    <div id="current-illumination" class="font-mono text-3xl font-semibold text-sky-300 tabular-nums"></div>
+                    <div class="text-xs text-slate-400 -mt-1">ILLUMINATED</div>
+                </div>
+            </div>
+            
+            <div id="current-cancer-desc" 
+                 class="p-6 rounded-3xl bg-white/5 border border-white/10 text-[15px] leading-relaxed text-slate-300">
+                <!-- JS populated -->
+            </div>
+        </div>
+
+        <!-- PHASE EXPLORER -->
+        <div class="mb-8">
+            <div class="flex items-end justify-between mb-4 px-1">
+                <div>
+                    <span class="section-header">EXPLORE THE CYCLE</span>
+                    <p class="text-slate-400 text-sm">Tap any phase to see how it moves Cancer energy</p>
+                </div>
+                <button onclick="resetToCurrentPhase()" 
+                        class="text-xs px-4 py-2 rounded-2xl border border-white/20 hover:bg-white/5 flex items-center gap-x-2 text-sky-300">
+                    <i class="fa-solid fa-sync text-xs"></i>
+                    <span>Back to Today</span>
+                </button>
+            </div>
+            
+            <!-- Phase Grid -->
+            <div id="phase-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+                <!-- Populated dynamically by JS -->
+            </div>
+        </div>
+
+        <!-- CANCER TELLS / TRAITS -->
+        <div class="max-w-5xl mx-auto">
+            <div class="mb-5 px-1">
+                <span class="section-header">THE CANCER TELLS</span>
+                <p class="text-slate-400">What makes Moon-ruled Cancers who they are</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                
+                <div class="trait-card p-5 rounded-3xl bg-white/5 border border-white/10">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="w-9 h-9 rounded-2xl bg-sky-400/10 flex items-center justify-center">
+                            <i class="fa-solid fa-water text-sky-400"></i>
+                        </div>
+                        <div class="font-semibold">Emotional Tides</div>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">Your feelings rise and fall like the ocean under the Moon’s pull. Moods can shift completely from morning to night — this is your superpower, not a flaw.</p>
+                </div>
+                
+                <div class="trait-card p-5 rounded-3xl bg-white/5 border border-white/10">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="w-9 h-9 rounded-2xl bg-sky-400/10 flex items-center justify-center">
+                            <i class="fa-solid fa-shield-halved text-sky-400"></i>
+                        </div>
+                        <div class="font-semibold">The Protective Shell</div>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">You have a hard outer shell and an incredibly soft center. You retreat when hurt, but once someone earns your trust, you offer fierce loyalty and emotional safety.</p>
+                </div>
+                
+                <div class="trait-card p-5 rounded-3xl bg-white/5 border border-white/10">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="w-9 h-9 rounded-2xl bg-sky-400/10 flex items-center justify-center">
+                            <i class="fa-solid fa-heart text-sky-400"></i>
+                        </div>
+                        <div class="font-semibold">Natural Nurturer</div>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">Home, family (chosen or blood), and emotional security are everything. You instinctively know how to care for others — sometimes before you care for yourself.</p>
+                </div>
+                
+                <div class="trait-card p-5 rounded-3xl bg-white/5 border border-white/10">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="w-9 h-9 rounded-2xl bg-sky-400/10 flex items-center justify-center">
+                            <i class="fa-solid fa-eye text-sky-400"></i>
+                        </div>
+                        <div class="font-semibold">Intuitive Radar</div>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">You feel what others feel before they say a word. This psychic-like empathy makes you an incredible listener, healer, and emotional anchor for your people.</p>
+                </div>
+                
+                <div class="trait-card p-5 rounded-3xl bg-white/5 border border-white/10">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="w-9 h-9 rounded-2xl bg-sky-400/10 flex items-center justify-center">
+                            <i class="fa-solid fa-home text-sky-400"></i>
+                        </div>
+                        <div class="font-semibold">Home as Sanctuary</div>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">You are the zodiac’s homemaker. Creating safe, cozy, beautiful spaces where people can land and feel held is one of your greatest gifts.</p>
+                </div>
+                
+                <div class="trait-card p-5 rounded-3xl bg-white/5 border border-white/10">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="w-9 h-9 rounded-2xl bg-sky-400/10 flex items-center justify-center">
+                            <i class="fa-solid fa-clock-rotate-left text-sky-400"></i>
+                        </div>
+                        <div class="font-semibold">Sentimental Memory</div>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">You remember how things felt. Old photos, childhood songs, and emotional milestones stay with you forever. Nostalgia is both comfort and occasional weight.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer note -->
+        <div class="mt-12 text-center">
+            <p class="text-xs text-slate-500 max-w-xs mx-auto">
+                This is a tool for reflection and entertainment. Astrology offers symbolic language for self-understanding — your actual emotions and choices always lead.
+            </p>
+        </div>
+    </div>
+
+    <!-- Birth Phase Modal -->
+    <div id="birth-modal" onclick="if (event.target.id === 'birth-modal') hideBirthModal()" 
+         class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+        <div onclick="event.stopImmediatePropagation()" 
+             class="w-full max-w-md bg-slate-900 border border-white/10 rounded-3xl p-7 shadow-2xl">
+            
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <div class="font-semibold text-xl">Discover Your Birth Moon Phase</div>
+                    <p class="text-sm text-slate-400 mt-1">See which lunar energy you arrived with</p>
+                </div>
+                <button onclick="hideBirthModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-medium text-slate-400 tracking-wider block mb-1.5">YOUR DATE OF BIRTH</label>
+                    <input type="date" id="birth-date" value="1990-06-15" 
+                           class="w-full bg-white/5 border border-white/20 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-sky-400">
+                </div>
+                
+                <button onclick="calculateBirthPhase()" 
+                        class="w-full py-3.5 rounded-2xl bg-sky-400 hover:bg-sky-300 active:bg-sky-500 transition-colors text-slate-950 font-semibold flex items-center justify-center gap-x-2">
+                    <i class="fa-solid fa-magic"></i>
+                    <span>Reveal My Lunar Phase</span>
+                </button>
+            </div>
+            
+            <div id="birth-result" class="hidden mt-6 p-5 rounded-2xl bg-white/5 border border-white/10">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind script
+        function initTailwind() {
+            document.documentElement.style.setProperty('--accent', '#bae6fd');
+        }
+
+        // Phase data with Cancer-specific insights
+        const phases = [
+            {
+                id: 0,
+                name: "New Moon",
+                emoji: "🌑",
+                short: "The Deep Reset",
+                illumination: 0,
+                cancer: "Time to retreat fully into your shell. Your inner world is quiet and fertile. This is the perfect moment for emotional rest, shadow work, and setting powerful new intentions around home, safety, and self-worth.",
+                advice: "Rest without guilt. Journal what you truly need. Avoid overcommitting."
+            },
+            {
+                id: 1,
+                name: "Waxing Crescent",
+                emoji: "🌒",
+                short: "Rising Energy",
+                illumination: 0.22,
+                cancer: "Your motivation and social battery are gently returning. Creativity and the desire to nurture projects or relationships begin to grow. A beautiful time to take small, meaningful steps toward emotional goals.",
+                advice: "Start gentle new rituals. Reach out to someone who feels like home."
+            },
+            {
+                id: 2,
+                name: "First Quarter",
+                emoji: "🌓",
+                short: "Action & Tension",
+                illumination: 0.5,
+                cancer: "Half-lit, half-shadow. You may feel internal tension between your need for security and the call to grow. This phase often brings opportunities (or challenges) around boundaries, home matters, or family dynamics.",
+                advice: "Take decisive action on one emotional or domestic goal. Speak your needs clearly."
+            },
+            {
+                id: 3,
+                name: "Waxing Gibbous",
+                emoji: "🌔",
+                short: "Almost Full Power",
+                illumination: 0.75,
+                cancer: "Energy is building toward a peak. Your intuition is sharpening and your nurturing instincts are strong. A powerful time for creative work, deepening bonds, and preparing to release something at the Full Moon.",
+                advice: "Refine what you’ve been building. Give extra care to your people and spaces."
+            },
+            {
+                id: 4,
+                name: "Full Moon",
+                emoji: "🌕",
+                short: "Emotional Peak",
+                illumination: 1,
+                cancer: "The Moon’s energy is at maximum strength. Many Cancers feel overwhelmed, deeply emotional, or extraordinarily intuitive right now. Old feelings surface. Family matters and home dynamics are amplified. Celebrate or release.",
+                advice: "Honor your feelings fully. Avoid major confrontations. Practice radical self-compassion."
+            },
+            {
+                id: 5,
+                name: "Waning Gibbous",
+                emoji: "🌖",
+                short: "Gratitude & Release",
+                illumination: 0.75,
+                cancer: "The peak has passed. This is a time of sharing wisdom, gratitude, and beginning to let go of emotional weight. Your shell feels a little softer. Good for forgiveness work and appreciating how far you’ve come.",
+                advice: "Express thanks. Release one thing that no longer protects your peace."
+            },
+            {
+                id: 6,
+                name: "Last Quarter",
+                emoji: "🌗",
+                short: "Letting Go",
+                illumination: 0.5,
+                cancer: "Half the light remains. This phase supports deep introspection and forgiveness. It’s easier now to release old stories, resentments, or habits that keep you feeling unsafe. A powerful time for emotional decluttering.",
+                advice: "Cleanse your space and your heart. What can you forgive — including yourself?"
+            },
+            {
+                id: 7,
+                name: "Waning Crescent",
+                emoji: "🌘",
+                short: "Surrender & Rest",
+                illumination: 0.22,
+                cancer: "The final days before rebirth. Your energy naturally turns inward again. This is sacred time for surrender, spiritual connection, and preparing your inner soil for the next New Moon. Rest is productive here.",
+                advice: "Slow down dramatically. Dream, meditate, or simply be. Trust the cycle."
+            }
+        ];
+
+        const phaseEmojis = phases.map(p => p.emoji);
+
+        // Moon phase calculation (accurate enough for prototype)
+        function getMoonData(date = new Date()) {
+            const jd = date.getTime() / 86400000 + 2440587.5;
+            let phase = ((jd - 2451550.1) / 29.530588853) % 1;
+            if (phase < 0) phase += 1;
+            
+            const illumination = (1 - Math.cos(2 * Math.PI * phase)) / 2;
+            const age = phase * 29.530588853;
+            
+            return { phase, illumination, age };
+        }
+
+        function getPhaseIndex(phaseValue) {
+            return Math.round(phaseValue * 8) % 8;
+        }
+
+        // Create phase markers around the clock
+        function createPhaseMarkers() {
+            const container = document.getElementById('phase-markers');
+            container.innerHTML = '';
+            
+            const radius = 148;
+            const centerX = 170;
+            const centerY = 170;
+            
+            phases.forEach((phase, index) => {
+                const angleDeg = (index / 8) * 360 - 90; // start from top
+                const angleRad = (angleDeg * Math.PI) / 180;
+                
+                const x = centerX + radius * Math.cos(angleRad);
+                const y = centerY + radius * Math.sin(angleRad);
+                
+                const marker = document.createElement('div');
+                marker.className = `phase-marker absolute w-9 h-9 rounded-full bg-slate-800 border border-white/30 flex items-center justify-center text-xl shadow-lg`;
+                marker.style.left = `${x - 18}px`;
+                marker.style.top = `${y - 18}px`;
+                marker.innerHTML = phase.emoji;
+                marker.title = phase.name;
+                
+                marker.onclick = () => {
+                    showPhaseDetail(phase.id);
+                    highlightActiveMarker(marker, false);
+                };
+                
+                container.appendChild(marker);
+                
+                // Store reference for highlighting
+                phase.markerElement = marker;
+            });
+        }
+
+        let currentActiveMarker = null;
+
+        function highlightActiveMarker(marker, isCurrent = false) {
+            if (currentActiveMarker) {
+                currentActiveMarker.classList.remove('active', 'border-sky-300', 'scale-110', 'ring-4', 'ring-sky-400/50');
+                currentActiveMarker.classList.add('border-white/30');
+                // Remove Today badge if exists
+                const badge = currentActiveMarker.querySelector('.today-badge');
+                if (badge) badge.remove();
+            }
+            
+            marker.classList.add('active', 'border-sky-300', 'scale-110', 'ring-4', 'ring-sky-400/50');
+            marker.classList.remove('border-white/30');
+            
+            if (isCurrent) {
+                // Add "Today" badge
+                const badge = document.createElement('div');
+                badge.className = 'today-badge absolute -top-1 -right-1 text-[10px] font-mono bg-emerald-400 text-emerald-950 px-1.5 py-px rounded-full shadow-md';
+                badge.textContent = 'TODAY';
+                marker.style.position = 'relative';
+                marker.appendChild(badge);
+            }
+            
+            currentActiveMarker = marker;
+        }
+
+        // Update center moon visual
+        function updateMoonVisual(phaseIndex, illumination, age) {
+            const container = document.getElementById('moon-visual');
+            const phase = phases[phaseIndex];
+            
+            container.innerHTML = `
+                <div class="relative w-[138px] h-[138px] rounded-full flex items-center justify-center moon-surface border border-white/40 overflow-hidden">
+                    <div class="text-[92px] drop-shadow-[0_10px_10px_rgba(0,0,0,0.3)]">${phase.emoji}</div>
+                    
+                    <!-- Subtle surface texture -->
+                    <div class="absolute inset-0 opacity-20" 
+                         style="background-image: radial-gradient(circle at 30% 30%, white 1px, transparent 2px); background-size: 18px 18px;"></div>
+                </div>
+                
+                <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 px-4 py-px rounded-full bg-slate-900/90 border border-white/20 text-[10px] font-mono tracking-widest flex items-center gap-x-1.5 shadow-inner">
+                    <span class="text-sky-300">${Math.round(illumination * 100)}%</span>
+                </div>
+            `;
+            
+            // Update lunar day
+            document.getElementById('lunar-day').innerHTML = `${age.toFixed(1)}<span class="text-xs align-super">d</span>`;
+        }
+
+        // Update lunar hand rotation
+        function updateLunarHand(phaseIndex) {
+            const hand = document.getElementById('lunar-hand');
+            const angle = (phaseIndex / 8) * 360 - 90;
+            hand.style.transform = `rotate(${angle}deg)`;
+        }
+
+        // Show current phase on load
+        let currentPhaseIndex = 0;
+
+        function showCurrentPhase() {
+            const now = new Date(); // Live device time – updates automatically every day
+            const moonData = getMoonData(now);
+            currentPhaseIndex = getPhaseIndex(moonData.phase);
+            
+            const phase = phases[currentPhaseIndex];
+            
+            // Update center visual
+            updateMoonVisual(currentPhaseIndex, moonData.illumination, moonData.age);
+            updateLunarHand(currentPhaseIndex);
+            
+            // Update current info panel
+            document.getElementById('current-phase-name').innerHTML = `${phase.emoji} ${phase.name}`;
+            document.getElementById('current-illumination').innerHTML = `${Math.round(moonData.illumination * 100)}<span class="text-base align-super">%</span>`;
+            
+            const descEl = document.getElementById('current-cancer-desc');
+            descEl.innerHTML = `
+                <div class="flex items-start gap-x-3">
+                    <div class="flex-1">
+                        <p class="leading-relaxed">${phase.cancer}</p>
+                        <div class="mt-3 pt-3 border-t border-white/10 flex items-center gap-x-2 text-xs">
+                            <span class="px-3 py-1 rounded-full bg-sky-400/10 text-sky-300 font-medium">${phase.short}</span>
+                            <span class="text-slate-400">• Day ${moonData.age.toFixed(1)} of the cycle</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Highlight the current marker
+            setTimeout(() => {
+                if (phase.markerElement) {
+                    highlightActiveMarker(phase.markerElement, true); // isCurrent = true for TODAY badge + stronger glow
+                }
+            }, 300);
+            
+            // Store for reset
+            window.currentMoonData = moonData;
+        }
+
+        // Show detail for any phase (updates the main panel style)
+        function showPhaseDetail(phaseId) {
+            const phase = phases[phaseId];
+            const moonData = getMoonData(); // Use current real time for illumination if exploring
+            
+            // Temporarily update center moon to explored phase
+            updateMoonVisual(phaseId, phase.illumination || 0.5, phaseId * 3.7); // approximate age
+            updateLunarHand(phaseId);
+            
+            // Update the main description area with this phase
+            const nameEl = document.getElementById('current-phase-name');
+            const illumEl = document.getElementById('current-illumination');
+            const descEl = document.getElementById('current-cancer-desc');
+            
+            nameEl.innerHTML = `${phase.emoji} ${phase.name} <span class="text-base align-middle font-normal text-sky-300/70">(exploring)</span>`;
+            illumEl.innerHTML = `${Math.round((phase.illumination || 0.5) * 100)}<span class="text-base align-super">%</span>`;
+            
+            descEl.innerHTML = `
+                <div>
+                    <p class="leading-relaxed">${phase.cancer}</p>
+                    
+                    <div class="mt-4 pt-4 border-t border-white/10">
+                        <div class="uppercase text-[10px] tracking-[1.5px] text-sky-300 mb-1.5 font-medium">Cancer Guidance</div>
+                        <p class="text-sm text-slate-300">${phase.advice}</p>
+                    </div>
+                    
+                    <button onclick="resetToCurrentPhase()" 
+                            class="mt-4 text-xs flex items-center gap-x-2 text-sky-300 hover:text-sky-200 transition-colors">
+                        <i class="fa-solid fa-arrow-left text-xs"></i>
+                        <span>Return to current phase</span>
+                    </button>
+                </div>
+            `;
+            
+            // Highlight corresponding marker
+            if (phase.markerElement) {
+                highlightActiveMarker(phase.markerElement, false);
+            }
+        }
+
+        function resetToCurrentPhase() {
+            showCurrentPhase();
+            
+            // Clear any "exploring" state
+            const nameEl = document.getElementById('current-phase-name');
+            if (nameEl.innerHTML.includes('exploring')) {
+                // re-render will fix it
+            }
+        }
+
+        // Create the beautiful phase grid
+        function createPhaseGrid() {
+            const grid = document.getElementById('phase-grid');
+            grid.innerHTML = '';
+            
+            phases.forEach(phase => {
+                const card = document.createElement('div');
+                card.className = `group p-4 rounded-3xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer`;
+                
+                card.innerHTML = `
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="text-4xl transition-transform group-hover:scale-110">${phase.emoji}</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold tracking-tight">${phase.name}</div>
+                            <div class="text-xs text-sky-300/70">${phase.short}</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-300 line-clamp-3 leading-snug">
+                        ${phase.cancer.substring(0, 115)}...
+                    </div>
+                `;
+                
+                card.onclick = () => {
+                    showPhaseDetail(phase.id);
+                    // Scroll to top of clock area smoothly
+                    document.querySelector('.max-w-\\[380px\\]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Birth phase calculator
+        function calculateBirthPhase() {
+            const dateInput = document.getElementById('birth-date').value;
+            if (!dateInput) return;
+            
+            const birthDate = new Date(dateInput);
+            const moonData = getMoonData(birthDate);
+            const phaseIndex = getPhaseIndex(moonData.phase);
+            const phase = phases[phaseIndex];
+            
+            const resultContainer = document.getElementById('birth-result');
+            resultContainer.classList.remove('hidden');
+            resultContainer.innerHTML = `
+                <div class="flex gap-x-4 items-start">
+                    <div class="text-6xl flex-shrink-0 pt-1">${phase.emoji}</div>
+                    <div class="flex-1">
+                        <div class="font-semibold text-xl">${phase.name}</div>
+                        <div class="text-sky-300 text-sm">${phase.short} • ${Math.round(moonData.illumination * 100)}% illuminated</div>
+                        
+                        <div class="mt-3 text-sm text-slate-300 leading-relaxed">
+                            ${phase.cancer}
+                        </div>
+                        
+                        <div class="mt-4 text-xs px-3 py-2 rounded-2xl bg-white/5 inline-block">
+                            You arrived when the Moon was in its <strong>${phase.name.toLowerCase()}</strong> phase.
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showBirthModal() {
+            const modal = document.getElementById('birth-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Pre-fill with a reasonable default if empty
+            const input = document.getElementById('birth-date');
+            if (!input.value) {
+                input.value = '1995-07-12'; // example Cancer season-ish
+            }
+        }
+
+        function hideBirthModal() {
+            const modal = document.getElementById('birth-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+            document.getElementById('birth-result').classList.add('hidden');
+        }
+
+        // Keyboard support
+        function setupKeyboard() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '?' && document.activeElement.tagName === 'BODY') {
+                    e.preventDefault();
+                    const modal = document.getElementById('birth-modal');
+                    if (!modal.classList.contains('hidden')) {
+                        hideBirthModal();
+                    } else {
+                        showBirthModal();
+                    }
+                }
+                
+                if (e.key.toLowerCase() === 'r' && e.metaKey) {
+                    e.preventDefault();
+                    resetToCurrentPhase();
+                }
+            });
+            
+            // Easter egg: click moon visual 3 times to see fun fact
+            let clickCount = 0;
+            const moonVis = document.getElementById('moon-visual');
+            moonVis.addEventListener('click', () => {
+                clickCount++;
+                if (clickCount === 3) {
+                    clickCount = 0;
+                    const toast = document.createElement('div');
+                    toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 bg-slate-800 border border-white/20 rounded-2xl text-sm flex items-center gap-x-2 shadow-xl`;
+                    toast.innerHTML = `<i class="fa-solid fa-info-circle text-sky-400"></i> <span>Cancer fact: The Moon changes signs every ~2.5 days — that’s why your emotions can shift so quickly.</span>`;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 4200);
+                }
+            });
+        }
+
+        // Main initialization
+        function initializeApp() {
+            initTailwind();
+            
+            // Build UI components
+            createPhaseMarkers();
+            createPhaseGrid();
+            
+            // Show today's phase
+            showCurrentPhase();
+            
+            // Keyboard & interactions
+            setupKeyboard();
+            
+            // Subtle welcome animation on the hand
+            setTimeout(() => {
+                const hand = document.getElementById('lunar-hand');
+                if (hand) hand.style.transition = 'transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            }, 800);
+            
+            // Make sure current marker is highlighted
+            setTimeout(() => {
+                const currentPhase = phases[currentPhaseIndex];
+                if (currentPhase && currentPhase.markerElement) {
+                    highlightActiveMarker(currentPhase.markerElement);
+                }
+            }, 650);
+            
+            // Optional: console hint for devs
+            console.log('%c[Shell & Tide] Cancer Moon Clock prototype ready. Open in Safari on iOS for best experience.', 'color:#64748b');
+        }
+
+        // Boot the app
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
