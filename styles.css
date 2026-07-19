@@ -256,6 +256,93 @@ body.lunar-body {
     opacity: 0.55;
 }
 
+
+.clock-body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top, var(--accent-soft, rgba(224, 231, 255, 0.18)), transparent 30%),
+        radial-gradient(circle at 85% 18%, var(--glow-2, rgba(251, 191, 36, 0.12)), transparent 22%),
+        linear-gradient(180deg, var(--bg-mid, #1a2233) 0%, var(--bg-deep, #0b0f1a) 38%);
+}
+
+.clock-nav {
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 12px 32px rgba(2, 6, 23, 0.24);
+}
+
+.clock-shell {
+    position: relative;
+    isolation: isolate;
+}
+
+.clock-shell::before,
+.clock-shell::after {
+    content: '';
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.65;
+}
+
+.clock-shell::before {
+    width: 16rem;
+    height: 16rem;
+    top: 2rem;
+    left: 0;
+    background: radial-gradient(circle, var(--accent-soft, rgba(224, 231, 255, 0.18)), transparent 70%);
+}
+
+.clock-shell::after {
+    width: 20rem;
+    height: 20rem;
+    right: 0;
+    top: 20rem;
+    background: radial-gradient(circle, var(--glow-2, rgba(251, 191, 36, 0.14)), transparent 72%);
+}
+
+.clock-hero {
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2rem;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+        radial-gradient(circle at top, var(--accent-soft, rgba(224, 231, 255, 0.12)), transparent 45%);
+    box-shadow: 0 24px 60px rgba(3, 7, 18, 0.24);
+}
+
+.clock-panel,
+.clock-body .trait-card,
+.clock-modal-panel {
+    background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03)) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 16px 36px rgba(2, 6, 23, 0.2);
+    backdrop-filter: blur(18px);
+}
+
+.clock-body .trait-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.clock-body .trait-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(255,255,255,0.05), transparent 68%);
+    pointer-events: none;
+}
+
+.clock-body .trait-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.clock-modal-panel {
+    background: linear-gradient(180deg, rgba(10, 14, 24, 0.94), rgba(10, 14, 24, 0.88)) !important;
+}
+
 @media (max-width: 768px) {
     .hero-section,
     .collection-section {
