@@ -58,7 +58,6 @@ body.lunar-body {
     content: '';
     position: absolute;
     pointer-events: none;
-    inset: auto;
     border-radius: 999px;
     filter: blur(6px);
     z-index: -1;
