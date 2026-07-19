@@ -144,10 +144,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-slate-950 text-slate-200">
+<body class="clock-body bg-slate-950 text-slate-200">
     <!-- NAV — consistent across all 12 signs -->
-    <nav class="border-b border-white/10 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
+    <nav class="clock-nav border-b border-white/10 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-x-3">
                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-400 to-amber-200 flex items-center justify-center text-slate-950 shadow-inner">
@@ -179,10 +180,10 @@
         </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto px-6 pt-8 pb-16">
+    <div class="clock-shell max-w-6xl mx-auto px-6 pt-8 pb-16">
 
         <!-- HERO -->
-        <div class="text-center mb-10 relative">
+        <div class="clock-hero text-center mb-10 relative">
             <div class="inline-flex items-center gap-x-2 px-4 py-1 rounded-full bg-white/5 border border-white/10 mb-4">
                 <i class="fa-solid fa-mountain text-amber-200"></i>
                 <span class="text-xs font-medium tracking-widest">RULED BY SATURN • EARTH SIGN</span>
@@ -245,7 +246,7 @@
             </div>
 
             <div id="current-sign-desc"
-                 class="p-6 rounded-3xl bg-white/5 border border-white/10 text-[15px] leading-relaxed text-slate-300">
+                 class="clock-panel p-6 rounded-3xl bg-white/5 border border-white/10 text-[15px] leading-relaxed text-slate-300">
             </div>
         </div>
 
@@ -288,7 +289,7 @@
     <div id="birth-modal" onclick="if (event.target.id === 'birth-modal') hideBirthModal()"
          class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
         <div onclick="event.stopImmediatePropagation()"
-             class="w-full max-w-md bg-slate-900 border border-white/10 rounded-3xl p-7 shadow-2xl">
+             class="clock-modal-panel w-full max-w-md bg-slate-900 border border-white/10 rounded-3xl p-7 shadow-2xl">
 
             <div class="flex justify-between items-start mb-6">
                 <div>
