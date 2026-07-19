@@ -44,6 +44,7 @@
 
         <!-- HERO -->
         <div class="hero-section text-center mb-14 relative">
+            <div class="hero-stars" aria-hidden="true"></div>
             <div class="inline-flex items-center gap-x-2 px-4 py-1 rounded-full bg-white/5 border border-white/10 mb-6">
                 <i class="fa-solid fa-moon text-indigo-300"></i>
                 <span class="text-xs font-medium tracking-[2px] text-slate-400">A LIVING COLLECTION OF LUNAR REFLECTIONS</span>
@@ -422,7 +423,7 @@
 
         // Subtle ambient stars in hero (lightweight)
         function addHeroStars() {
-            const hero = document.querySelector('.hero-section');
+            const hero = document.querySelector('.hero-stars');
             if (!hero) return;
             
             for (let i = 0; i < 18; i++) {
@@ -433,7 +434,6 @@
                 star.style.boxShadow = `0 0 ${2 + Math.random() * 3}px rgba(224,231,255,0.6)`;
                 star.style.animation = `twinkle ${3 + Math.random() * 4}s ease-in-out infinite`;
                 star.style.animationDelay = `-${Math.random() * 6}s`;
-                hero.style.position = 'relative';
                 hero.appendChild(star);
             }
         }

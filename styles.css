@@ -113,7 +113,15 @@ body.lunar-body {
     pointer-events: none;
 }
 
-.hero-section > * {
+.hero-stars {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-section > :not(.hero-stars) {
     position: relative;
     z-index: 1;
 }
